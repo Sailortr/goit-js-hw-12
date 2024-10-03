@@ -6,11 +6,11 @@ import axios from 'axios';
 
 const input = document.querySelector('.search-input');
 const gallery = document.getElementById('gallery');
-const formx = document.getElementById('myForm');
+const formx = document.getElementById('search-form');
 
 const lightbox = new SimpleLightbox('.gallery li > a', {
-  captionsData: 'alt',
-  captionDelay: 250,
+    captionsData: 'alt',
+    captionDelay: 250,
 });
 
 const loadMoreBtn = document.getElementById('load-more');
@@ -19,54 +19,54 @@ let page = 1;
 let currentQ = '';
 
 async function searchImages() {
-  const q = input.value.trim();
+    const q = input.value.trim();
     let loader;
     if (q !== '' && q !== currentQ) {
         page = 1;
         currentQ = q;
         gallery.innerHTML = '';
         loader = document.getElementById('loader-container');
-      } else {
-        loader = document.getElementById('loader-more-container');
-      }
-
-
-
-  const apiKey = '46270894-c6cf89269c02f6d41aef898e4';
-  const url = `https://pixabay.com/api/?key=${apiKey}&q=${q}&image_type=photo&orientation=horizontal&safesearch=true`;
-
-  try {
-    loader.classList.remove('hidden');
-    const response = await axios.get(url);
-    const data = response.data;
-
-    if (data.hits.length === 0) {
-      iziToast.error({
-        title: '',
-        message:
-          'Sorry, there are no images matching your search query. Please try again!',
-        position: 'topRight',
-      });
     } else {
-      displayImages(data.hits);
-      loadMoreBtn.classList.remove('hidden');
-      page++;
+        loader = document.getElementById('loader-more-container');
     }
-  } catch (error) {
-    iziToast.error({
-        title: '',
-        message: `Sorry, ${error.message}! Please try again!`,
-        position: 'topRight',
-      });
-    console.error('Hata:', error);
-  } finally {
-    loader.classList.add('hidden');
-  }
+
+
+
+    const apiKey = '46270894-c6cf89269c02f6d41aef898e4';
+    const url = `https://pixabay.com/api/?key=${apiKey}&q=${q}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=12`;
+
+    try {
+        loader.classList.remove('hidden');
+        const response = await axios.get(url);
+        const data = response.data;
+
+        if (data.hits.length === 0) {
+            iziToast.error({
+                title: '',
+                message:
+                    'Sorry, there are no images matching your search query. Please try again!',
+                position: 'topRight',
+            });
+        } else {
+            displayImages(data.hits);
+            loadMoreBtn.classList.remove('hidden');
+            page++;
+        }
+    } catch (error) {
+        iziToast.error({
+            title: '',
+            message: `Sorry, ${error.message}! Please try again!`,
+            position: 'topRight',
+        });
+        console.error('Hata:', error);
+    } finally {
+        loader.classList.add('hidden');
+    }
 }
 
 function displayImages(images) {
-  const galleryHtml = images.map(image => {
-    return `
+    const galleryHtml = images.map(image => {
+        return `
     <li class="card">
   <a href="${image.largeImageURL}">
     <img src="${image.webformatURL}" alt="${image.tags}" />
@@ -80,13 +80,13 @@ function displayImages(images) {
 </li>
     
     `;
-  });
+    });
 
-  gallery.innerHTML = galleryHtml.join('');
-  lightbox.refresh();
+    gallery.innerHTML += galleryHtml.join('');
+    lightbox.refresh();
 }
 
 formx.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  await searchImages();
+    e.preventDefault();
+    await searchImages();
 });
